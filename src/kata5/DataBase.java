@@ -6,8 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
-class DataBase {
+public class DataBase {
     private String URL;
     private Connection connection = null;
     
@@ -16,12 +17,12 @@ class DataBase {
     }
 
     public void open() {
+        
         try {
-            //if (this.connection != null)
             this.connection = DriverManager.getConnection(this.URL);
             System.out.println("Base de Datos abierta.");
         } catch (SQLException e){
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error open: " + e.getMessage());
         }
     }
 
@@ -31,46 +32,44 @@ class DataBase {
                 this.connection.close();
                 System.out.println("Base de Datos cerrada.");
             } catch (SQLException e){
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error close: " + e.getMessage());
             }
         }
     }
 
-    public void selectPeople() {
-        String SQL = "SELECT * FROM PEOPLE";
+    public void selectEmails() {
+        String SQL = "SELECT * FROM MAIL";
         try {
             Statement statement = this.connection.createStatement();
             ResultSet resultset = statement.executeQuery(SQL);
-            System.out.println("ID\tNAME\tSURNAME\tDEPARTAMENT");
+            System.out.println("ID\tEMAILS");
             while (resultset.next()) {
                 System.out.println(resultset.getInt("ID") + "\t" +
-                                   resultset.getString("NAME") + "\t" +
-                                   resultset.getString("SURNAME") + "\t" +
-                                   resultset.getString("DEPARTAMENT"));
+                                   resultset.getString("Mail"));
             }
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error select: " + e.getMessage());
         }
     }
 
-    public void insertPeople(People people) {
-        String SQL = "INSERT INTO PEOPLE(NAME, SURNAME, DEPARTAMENT) VALUES(?, ?, ?)";
+    public void insertEmail(List<String> lista) {
+        String SQL = "INSERT INTO EMAIL(Mail) VALUES(?)";
         try {
             PreparedStatement prepareStatement = this.connection.prepareStatement(SQL);
-            prepareStatement.setString(1, people.getName());
-            prepareStatement.setString(2, people.getSurname());
-            prepareStatement.setString(3, people.getDepartament());
-            prepareStatement.executeUpdate();
+            for (String email : lista) {
+                prepareStatement.setString(1, email);
+                prepareStatement.executeUpdate();
+            }
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al insertar: " + e.getMessage());
         }
     }
     
-    public void deletePeople(String name) {
-        String SQL = "DELETE FROM PEOPLE WHERE Name = " + '"' + name + '"';
+    public void deleteEmail(String email) {
+        String SQL = "DELETE FROM EMAIL WHERE Mail = " + '"' + email + '"';
         try {
             Statement statement = this.connection.createStatement();
-            ResultSet resultset = statement.executeQuery(SQL);
+            statement.executeQuery(SQL);
         }catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
